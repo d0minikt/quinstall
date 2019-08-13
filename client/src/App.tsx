@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import ScriptConfig from "./models/ScriptConfig";
-
 import { getScript } from "./services/script";
+
+import saveIcon from "./icons/save.svg";
+import download from "./utils/download-file";
 
 const initialConfig: ScriptConfig = {
   chrome: { category: "browser", enabled: false },
@@ -157,9 +159,13 @@ const App: React.FC = () => {
       <h2>Package Managers</h2>
       {getCategory("pm").map(renderModule)}
 
-      <pre>
+      {process.env.NODE_ENV === "development" && <pre>
         <code>{getScript(modules)}</code>
-      </pre>
+      </pre>}
+
+      <div className="download-btn" onClick={() => download("install.sh", getScript(modules))}>
+        <img alt="" width={27} src={saveIcon} />
+      </div>
     </div>
   );
 };

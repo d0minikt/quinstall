@@ -6,10 +6,27 @@ body {
     "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -moz-osx-font-smfill="currentColor"oothing: grayscale;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+.download-btn {
+  width: 60px;
+  height: 60px;
+  background: #a1aab4;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0px 2px 3px rgba(0,0,0,0.2);
+  box-sizing: border-box;
+
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
 }
