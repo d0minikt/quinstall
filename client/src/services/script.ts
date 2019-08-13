@@ -1,99 +1,9 @@
-const fs = require("fs");
+import ScriptConfig from "../models/ScriptConfig"
 
-const writeToFile = content =>
-  fs.writeFile("./install.sh", content, err => err && console.error(err));
+export class Script {
+    lines: string[] = [];
 
-const config = {
-  modules: {
-    // apps
-    chrome: true,
-    firefox: false, // TODO: this
-    gitkraken: false,
-    vlc: false,
-    discord: false,
-    arduino: false,
-    spotify: false,
-
-    // utils
-    fd_find: false,
-    loc: false,
-    youtube_dl: false,
-    ncdu: false,
-    fish: false,
-    lsd: false,
-    bat: true,
-    xclip: false,
-    xdotool: false,
-    wmctrl: false,
-
-    // langauges
-    ts: false,
-    js: false,
-    c: false, //TODO: this
-    cpp: false, // TODO: this
-    rust: false,
-    go: false,
-    python2: false,
-    python3: false,
-    flutter: false, // TODO: this
-    dotnet: false, // TODO: this
-
-    // cloud
-    gcloud: false,
-    azure: false,
-    aws: false,
-
-    vscode: false,
-    android_studio: false,
-
-    // utils
-    curl: false,
-    wget: false,
-    git: false,
-
-    // package managers / store
-    snap: false
-  },
-
-  preferences: {
-    git: {
-      email: "dominik.t.uk@gmail.com",
-      name: "Dominik Tarnowski"
-    },
-    vscode: {
-      extensions: [
-        "emmanuelbeziat.vscode-great-icons",
-        "wayou.vscode-todo-highlight",
-        "ms-vsliveshare.vsliveshare",
-        "jolaleye.horizon-theme-vscode",
-        "thenikso.github-plus-theme",
-        "Equinusocio.vsc-material-theme"
-      ]
-    }
-  },
-
-  improvements: {
-    battery: false
-  }
-};
-
-const depends = (...modules) => {
-  for (let key of modules) {
-    config.modules[key] = true;
-  }
-};
-
-const addCodeExtensions = (...extensions) =>
-  (config.preferences.vscode.extensions = [
-    ...config.preferences.vscode.extensions,
-    ...extensions
-  ]);
-
-class Script {
-  constructor() {
-    this.lines = [];
-  }
-  get content() {
+  get content(): string {
     let output = ["#/bin/bash"];
     let i = this.lines.length - 1;
     let section = [];
@@ -114,20 +24,19 @@ class Script {
     return output.join("\n");
   }
 
-  addLine(...lines) {
+  addLine(...lines: string[]) {
     this.lines = [...this.lines, ...lines];
   }
   newLine() {
     this.addLine("");
   }
-  comment(text) {
+  comment(text: string) {
     this.addLine(`# ${text}`);
   }
-  aptInstall(...apps) {
+  aptInstall(...apps: string[]) {
     this.addLine(`sudo apt install -y ${apps.join(" ")}`);
   }
-  snapInstall(snap, classic = false) {
-    depends("snap");
+  snapInstall(snap: string, classic: boolean = false) {
     if (!classic) {
       this.addLine(`snap install ${snap}`);
     } else {
@@ -136,13 +45,25 @@ class Script {
   }
 }
 
-const getScript = config => {
+export const getScript = (config: ScriptConfig) => {
   const script = new Script();
 
-  for (let module in config.modules) {
-    if (!config.modules[module]) continue;
-    script.comment(module);
-    switch (module) {
+  const depends = (...modules: string[]) => {
+    for (let key of modules) {
+      config[key].enabled = true;
+    }
+  };
+  
+  const addCodeExtensions = (...extensions: string[]) => console.log("fix this")
+    // (config.preferences.vscode.extensions = [
+    //   ...config.preferences.vscode.extensions,
+    //   ...extensions
+    // ]);
+
+  for (let key in config) {
+    if (!config[key].enabled) continue;
+    script.comment(key);
+    switch (key) {
       case "chrome":
         depends("wget");
         script.addLine(
@@ -172,9 +93,11 @@ const getScript = config => {
         );
         break;
       case "vlc":
+          depends("snap");
         script.snapInstall("vlc");
         break;
       case "discord":
+            depends("snap");
         script.snapInstall("discord");
         break;
 
@@ -190,6 +113,7 @@ const getScript = config => {
         script.aptInstall("ncdu");
         break;
       case "youtube_dl":
+            depends("snap");
         script.snapInstall("youtube-dl");
         break;
       case "fish":
@@ -245,9 +169,9 @@ const getScript = config => {
       case "go":
         addCodeExtensions("ms-vscode.go");
         script.addLine(
-          "sudo add-apt-repository ppa:longsleep/golang-backports -y",
-          "sudo apt install golang-go -y"
+          "sudo add-apt-repository ppa:longsleep/golang-backports -y"
         );
+        script.aptInstall("golang-go");
         script.addLine(
           String.raw`echo "export PATH=\"$PATH:$HOME/go/bin\"" >> $HOME/.rc`
         );
@@ -277,28 +201,28 @@ const getScript = config => {
         break;
 
       case "android_studio":
+            depends("snap");
         script.snapInstall("android-studio", false);
         break;
       case "vscode":
         depends("wget");
-        // install.snapInstall("vscode", false);
         script.addLine(
           "wget -O vscode.deb https://go.microsoft.com/fwlink/?LinkID=760868",
           "sudo dpkg -i vscode.deb",
           "rm vscode.deb"
         );
-        for (let extension of config.preferences.vscode.extensions) {
-          script.addLine(`code --install-extension ${extension}`);
-        }
+        // for (let extension of config.preferences.vscode.extensions) {
+        //   script.addLine(`code --install-extension ${extension}`);
+        // }
         break;
 
       case "git":
         addCodeExtensions("eamodio.gitlens");
         script.aptInstall("git");
-        script.addLine(
-          `git config --global user.email ${config.preferences.git.email}`,
-          `git config --global user.name ${config.preferences.git.name}`
-        );
+        // script.addLine(
+        //   `git config --global user.email ${config.preferences.git.email}`,
+        //   `git config --global user.name ${config.preferences.git.name}`
+        // );
         break;
       case "curl":
         script.aptInstall("curl");
@@ -314,14 +238,10 @@ const getScript = config => {
   }
 
   script.addLine("# update & upgrade");
-  script.addLine("sudo apt update -y");
-  script.addLine("sudo apt upgrade -y");
+  script.addLine("sudo apt-get update -y");
+  script.addLine("sudo apt-get upgrade -y");
   script.addLine("");
   // todo: add "source $HOME/.rc" to the profile
 
   return script.content;
 };
-
-const script = getScript(config);
-
-writeToFile(script);
