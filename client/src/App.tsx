@@ -13,6 +13,7 @@ const initialConfig: ScriptConfig = {
 
   gitkraken: { category: "dev", enabled: false },
   arduino: { category: "dev", enabled: false },
+  alacritty: { category: "dev", enabled: false },
 
   fd_find: { category: "utils", enabled: false },
   loc: { category: "utils", enabled: false },

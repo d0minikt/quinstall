@@ -1,7 +1,7 @@
-import ScriptConfig from "../models/ScriptConfig"
+import ScriptConfig from "../models/ScriptConfig";
 
 export class Script {
-    lines: string[] = [];
+  lines: string[] = [];
 
   get content(): string {
     let output = ["#/bin/bash"];
@@ -53,12 +53,13 @@ export const getScript = (config: ScriptConfig) => {
       config[key].enabled = true;
     }
   };
-  
-  const addCodeExtensions = (...extensions: string[]) => console.log("fix this")
-    // (config.preferences.vscode.extensions = [
-    //   ...config.preferences.vscode.extensions,
-    //   ...extensions
-    // ]);
+
+  const addCodeExtensions = (...extensions: string[]) =>
+    console.log("fix this");
+  // (config.preferences.vscode.extensions = [
+  //   ...config.preferences.vscode.extensions,
+  //   ...extensions
+  // ]);
 
   for (let key in config) {
     if (!config[key].enabled) continue;
@@ -92,12 +93,19 @@ export const getScript = (config: ScriptConfig) => {
           "rm gitkraken.deb"
         );
         break;
+      case "alacritty":
+        script.addLine(
+          "sudo add-apt-repository ppa:mmstick76/alacritty",
+          "sudo apt update -y"
+        );
+        script.aptInstall("alacritty");
+        break;
       case "vlc":
-          depends("snap");
+        depends("snap");
         script.snapInstall("vlc");
         break;
       case "discord":
-            depends("snap");
+        depends("snap");
         script.snapInstall("discord");
         break;
 
@@ -113,7 +121,7 @@ export const getScript = (config: ScriptConfig) => {
         script.aptInstall("ncdu");
         break;
       case "youtube_dl":
-            depends("snap");
+        depends("snap");
         script.snapInstall("youtube-dl");
         break;
       case "fish":
@@ -201,7 +209,7 @@ export const getScript = (config: ScriptConfig) => {
         break;
 
       case "android_studio":
-            depends("snap");
+        depends("snap");
         script.snapInstall("android-studio", false);
         break;
       case "vscode":
