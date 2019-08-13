@@ -47,6 +47,7 @@ export class Script {
 
 export const getScript = (config: ScriptConfig) => {
   const script = new Script();
+  let changesShell = false;
 
   const depends = (...modules: string[]) => {
     for (let key of modules) {
@@ -149,6 +150,9 @@ export const getScript = (config: ScriptConfig) => {
       case "wmctrl":
         script.aptInstall("wmctrl");
         break;
+      case "openssh":
+        script.aptInstall("openssh-server");
+        break;
 
       case "ts":
         depends("js");
@@ -166,6 +170,7 @@ export const getScript = (config: ScriptConfig) => {
         script.addLine("sudo npm i -g nodemon");
         break;
       case "rust":
+        changesShell = true;
         script.addLine(
           `curl https://sh.rustup.rs -sSf | sh`,
           `source $HOME/.cargo/env`,
@@ -175,6 +180,7 @@ export const getScript = (config: ScriptConfig) => {
         );
         break;
       case "go":
+        changesShell = true;
         addCodeExtensions("ms-vscode.go");
         script.addLine(
           "sudo add-apt-repository ppa:longsleep/golang-backports -y"
@@ -249,7 +255,15 @@ export const getScript = (config: ScriptConfig) => {
   script.addLine("sudo apt-get update -y");
   script.addLine("sudo apt-get upgrade -y");
   script.addLine("");
-  // todo: add "source $HOME/.rc" to the profile
+
+  if (changesShell) {
+    let shellRcFiles = ["$HOME/.bashrc"];
+    // fish
+    shellRcFiles.push("$HOME/.config/fish/config.fish");
+    for (let shellRcFile of shellRcFiles) {
+      script.addLine(`echo "source $HOME/.rc" >> ${shellRcFile}`);
+    }
+  }
 
   return script.content;
 };

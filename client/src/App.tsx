@@ -25,6 +25,7 @@ const initialConfig: ScriptConfig = {
   xclip: { category: "utils", enabled: false },
   xdotool: { category: "utils", enabled: false },
   wmctrl: { category: "utils", enabled: false },
+  openssh: { category: "utils", enabled: false },
 
   js: { category: "lang", enabled: false },
   ts: { category: "lang", enabled: false },
@@ -72,6 +73,7 @@ const Module: React.FC<ModuleProps> = ({ title, onChange, checked }) => {
         onChange={e => onChange(e.target.checked)}
       />
       <img
+        alt=""
         onError={onImgError}
         width={30}
         height={30}
@@ -107,6 +109,8 @@ const getName = (key: string) => {
       return "VS Code";
     case "gcloud":
       return "Google Cloud";
+    case "openssh":
+      return "OpenSSH";
     default:
       return key;
   }
